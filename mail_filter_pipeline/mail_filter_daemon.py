@@ -90,25 +90,24 @@ class MailFilterDaemon( object ):
 
     def main(self):
         assert self.conf != None
-        self.mailQueue = queue.Queue( maxsize=self.conf.getMailQueueSize() )
-        self.pipelineQueue = queue.Queue( maxsize=self.conf.getPipelineQueueSize() )
-        
-        self.initLogging()
-        # load input plugins but not start them yet
-        self.initInputPlugins()
-        # load pipelines
-        # TODO: run checks on all pipelines and filters: config, plugin loaded
-        
-        # start worker threads for the pipelines
-        for i in range( self.conf.getPipelineThreadCount() ):
-            self.pipelineExecutors.append( PipelineExecutor(self.pipelineQueue) )
-
-        # start input plugins. Make sure all plugins handle their threads and do not block
-        for plugin in self.inputPlugins:
-            plugin.start()
-
-        # enter main loop for message processing
         try:
+            self.mailQueue = queue.Queue( maxsize=self.conf.getMailQueueSize() )
+            self.pipelineQueue = queue.Queue( maxsize=self.conf.getPipelineQueueSize() )
+            
+            self.initLogging()
+            # load input plugins but not start them yet
+            self.initInputPlugins()
+            # load pipelines
+            # TODO: run checks on all pipelines and filters: config, plugin loaded
+            
+            # start worker threads for the pipelines
+            for i in range( self.conf.getPipelineThreadCount() ):
+                self.pipelineExecutors.append( PipelineExecutor(self.pipelineQueue) )
+
+            # start input plugins. Make sure all plugins handle their threads and do not block
+            for plugin in self.inputPlugins:
+                plugin.start()
+
             self.logger.debug("started main loop")
             while True:
                 # get the new message
@@ -120,7 +119,11 @@ class MailFilterDaemon( object ):
                     self.pipelineQueue.put( pipeline, block=True )
                 self.mailQueue.task_done()
         except KeyboardInterrupt:
-            pass
+            self.logger.debug("caught keyboard interrupt")
+        except Exception:
+            print( "Error: uncaught exception, see log for details" )
+            self.logger.exception("uncaught exception")
+            raise SystemExit(1)
         finally:
             self.logger.debug("stopping main loop")
             for plugin in self.inputPlugins:
