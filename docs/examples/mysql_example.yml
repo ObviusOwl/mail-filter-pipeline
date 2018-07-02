@@ -1,0 +1,31 @@
+daemon_config:
+  mail_queue_size: 5
+  pipeline_queue_size: 5
+  pipeline_threads: 5
+  
+inputs:
+- name: main_smtp_input
+  smtp:
+    port: 10025
+    host: ""
+    queue_timeout: 5
+
+pipelines:
+- name: foo
+  inputs:
+  - main_smtp_input
+  filters:
+  - debug: ""
+    ignore_exceptions: true
+  - mysql:
+      host: mail-db.example.com
+      port: 3306
+      user: mails
+      password: "password"
+      database: mails
+      table: test
+    ignore_exceptions: true
+
+  - smtp:
+      host: mail-filter.example.com
+      port: 10026
