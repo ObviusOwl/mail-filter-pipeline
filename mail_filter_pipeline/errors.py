@@ -7,3 +7,4 @@ class ConfigError( Exception ):
 class FilterRuntimeError( Exception ):
     def __init__(self, message):
         super().__init__(self, message)
+        self.message = message

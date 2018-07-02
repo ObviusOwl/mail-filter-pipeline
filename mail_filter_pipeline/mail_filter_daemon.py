@@ -9,6 +9,7 @@ from .input_plugin import InputPlugin
 from .pipeline import Pipeline
 from .pipeline_executor import PipelineExecutor
 from .core import *
+from .errors import *
 
 class MailFilterDaemon( object ):
 
@@ -120,6 +121,10 @@ class MailFilterDaemon( object ):
                 self.mailQueue.task_done()
         except KeyboardInterrupt:
             self.logger.debug("caught keyboard interrupt")
+        except FilterRuntimeError as e:
+            print( "FilterRuntimeError: see log for details" )
+            self.logger.exception( e.message )
+            raise SystemExit(1)
         except Exception:
             print( "Error: uncaught exception, see log for details" )
             self.logger.exception("uncaught exception")
