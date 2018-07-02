@@ -9,26 +9,32 @@ class SmtpFilter( FilterPlugin ):
     def __init__(self):
         super().__init__()
         self.logger = logging.getLogger(__name__)
-        self.host = "localhost"
-        self.port = 25
-        
+        self.host = None
+        self.port = None
+
+    def requireConfig(self, conf, key):
+        if not key in conf:
+            raise FilterRuntimeError("SMTP filter configuration key '{}' is mandatory".format(key) )
+        return conf[ key ]
+
     def config( self, conf ):
         super().config(conf)
         myConf = conf.getPluginConfig()
-        if "host" in myConf:
-            self.host = myConf["host"]
-        if "port" in myConf:
-            self.port = myConf["port"]
+        self.host = self.requireConfig( myConf, "host" )
+        self.port = self.requireConfig( myConf, "port" )
 
     def run(self, message):
-        msg = "sending message with SMTP from={}, to={}, host={}:{}".format(
+        assert self.host != None
+        assert self.port != None
+
+        msg = "SMTP submitted message (from={}, to={}) to host {}:{} , ".format(
             message.message["from"], message.message["to"], self.host, self.port
         )
-        self.logger.debug( msg )
 
         server = smtplib.SMTP( host=self.host, port=self.port)
         try:
             server.send_message( message.message )
+            self.logger.debug( msg )
         finally:
             server.quit()
         
