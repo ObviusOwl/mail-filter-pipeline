@@ -1,6 +1,7 @@
 import os
 import os.path
 import yaml
+import logging
 
 from mail_filter_pipeline.errors import ConfigError
 
@@ -8,6 +9,7 @@ class Config( object ):
     def __init__( self ):
         self.confFile = None
         self.conf = None
+        self.logVerbosityMap = { "error": logging.ERROR, "warning": logging.WARNING, "debug":logging.DEBUG }
     
     def loadFile( self, confFile ):
         # TODO: raise on syntax error + catch and log
@@ -55,6 +57,11 @@ class Config( object ):
     def getPipelineThreadCount(self):
         return self.getDaemonConfig("pipeline_threads",fallback=5)
 
+    def getLoggingVerbosity(self):
+        verb = self.getDaemonConfig("log_verbosity")
+        if verb in self.logVerbosityMap.keys():
+            return self.logVerbosityMap[verb]
+        return None
 
 class InputConfig( object ):
     def __init__( self, conf ):

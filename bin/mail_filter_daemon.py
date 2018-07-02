@@ -16,7 +16,7 @@ def parseArgs():
                 help='Log driver to send log messages to. If not set logs are written to stderr', choices=["syslog","file"] )
     parser.add_argument('--log-dest', action='store', dest='logDest', default=None,
                 help='Log destination. Path to a log file for the file logger.' )
-    parser.add_argument('-v','--verbosity', action='store', dest='logVerb', default="error",
+    parser.add_argument('-v','--verbosity', action='store', dest='logVerb', default=None,
                 help='Logging verbosity.', choices=["error","warning","debug"] )
 
     return parser.parse_args()

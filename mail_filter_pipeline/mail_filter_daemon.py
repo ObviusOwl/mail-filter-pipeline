@@ -40,9 +40,11 @@ class MailFilterDaemon( object ):
         self.logDestination = dest
     
     def initLogging(self):
-        # TODO: check config file log verbosity
+        assert self.conf != None
         if self.logVerbosity != None:
             logVerbosity = self.logVerbosity
+        elif self.conf.getLoggingVerbosity() != None:
+            logVerbosity = self.conf.getLoggingVerbosity()
         else:
             logVerbosity = logging.WARNING
             

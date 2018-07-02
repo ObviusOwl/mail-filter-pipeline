@@ -2,7 +2,8 @@ daemon_config:
   mail_queue_size: 5
   pipeline_queue_size: 5
   pipeline_threads: 5
-  
+  log_verbosity: debug
+
 inputs:
 - name: main_smtp_input
   smtp:
