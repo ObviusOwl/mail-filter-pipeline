@@ -4,7 +4,7 @@ This filter writes the message to a mysql table.
 
 The schema used is:
 
-```SQL
+```sql
 CREATE TABLE `mails` (
   `id` int(10) UNSIGNED NOT NULL,
   `message` text,
