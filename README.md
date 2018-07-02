@@ -76,12 +76,4 @@ optional arguments:
 
 ## Installation
 
-Install the dependencies:
-
-The package `python3-aiosmtpd` is only available in ubuntu since 17.10, but can be 
-installed by hand on 16.04 too. On debian the package is available through the backports
-repository.
-
-Clone the repository. 
-
-TODO: create systemd unit.
+See [INSTALL.md](INSTALL.md) for install instructions.
