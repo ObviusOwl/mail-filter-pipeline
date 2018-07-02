@@ -3,6 +3,7 @@ import logging.handlers
 import queue
 import os
 import copy
+import signal
 
 from .config import Config
 from .input_plugin import InputPlugin
@@ -101,7 +102,12 @@ class MailFilterDaemon( object ):
             # runs config() method on all plugins. Plugins should raise if the config is not ok
             pipe.initFilters()
 
+    def sigtermHandler(self, signal, frame):
+        self.logger.debug("caught sigterm")
+        raise SystemExit(143)
+
     def main(self):
+        signal.signal(signal.SIGTERM, self.sigtermHandler)
         assert self.conf != None
         try:
             self.mailQueue = queue.Queue( maxsize=self.conf.getMailQueueSize() )
