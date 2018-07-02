@@ -88,6 +88,16 @@ class MailFilterDaemon( object ):
                 pipe.setMessage( copy.deepcopy(message) )
                 pipelines.append( pipe )
         return pipelines
+        
+    def checkPipelinesConfig( self ):
+        assert self.conf != None
+        pipeConfs = self.conf.getPipelines()
+
+        for pipeCnf in pipeConfs:
+            pipe = Pipeline()
+            pipe.setConf( copy.deepcopy(pipeCnf) )
+            # runs config() method on all plugins. Plugins should raise if the config is not ok
+            pipe.initFilters()
 
     def main(self):
         assert self.conf != None
@@ -98,8 +108,8 @@ class MailFilterDaemon( object ):
             self.initLogging()
             # load input plugins but not start them yet
             self.initInputPlugins()
-            # load pipelines
-            # TODO: run checks on all pipelines and filters: config, plugin loaded
+            # check if pipelines and filters are runnable (plugin + config OK)
+            self.checkPipelinesConfig()
             
             # start worker threads for the pipelines
             for i in range( self.conf.getPipelineThreadCount() ):
