@@ -52,7 +52,8 @@ class SmtpInput( InputPlugin ):
         self.logger.debug( "started smtp input plugin named '{}'".format(self.name) )
         
     def stop( self ):
-        self.controller.stop()
+        if self.controller != None:
+            self.controller.stop()
         self.logger.debug( "stopped smtp input plugin named '{}'".format(self.name) )
         
     def config( self, cnf ):
