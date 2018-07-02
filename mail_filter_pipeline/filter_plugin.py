@@ -52,7 +52,7 @@ class FilterPlugin( object, metaclass=FilterPluginType ):
         self.conf = conf
 
     def getIgnoreExceptions(self):
-        """ Check if exceptions raised during run() should make the pipeline fail""""
+        """ Check if exceptions raised during run() should make the pipeline fail"""
         assert self.conf != None
         return self.conf.getIgnoreExceptions()
 
