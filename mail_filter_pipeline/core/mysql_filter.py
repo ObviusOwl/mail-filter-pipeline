@@ -43,19 +43,29 @@ class MysqlFilter( FilterPlugin ):
         self.database = self.requireConfig( myConf, "database")
         self.table    = self.requireConfig( myConf, "table")
         
-    def guessReceivedDate(self, msg ):
-        r = msg.get_all("Received")
-        if len(r) == 0:
-            return None
-        r = r[0]
-        m = self.dateReg.search( r )
-        if m == None:
-            return None
-        d = None
-        try:
-            d = email.utils.parsedate_to_datetime( m.group(0) )
-        finally:
-            return d
+    def guessReceivedDates(self, msg ):
+        dates = [None, None, None, None]
+        allReceived = msg.get_all("Received")
+        for idx in range(4):
+            try:
+                r = allReceived[idx]
+                m = self.dateReg.search( r )
+                if m == None:
+                    continue
+                dates[idx] = email.utils.parsedate_to_datetime( m.group(0) )
+            except IndexError:
+                break
+        return dates
+    
+    def guessReceivedDatesStr(self, msg ):
+        dates = self.guessReceivedDates( msg )
+        datesStr = []
+        for d in dates:
+            if d == None:
+                datesStr.append(None)
+            else:
+                datesStr.append( d.strftime('%Y-%m-%d %H:%M:%S') )
+        return datesStr
     
     def getSendDate( self, msg ):
         d = None
@@ -92,29 +102,25 @@ class MysqlFilter( FilterPlugin ):
             self.host, self.port, self.database, self.table
         )
         stm = ("INSERT INTO `{}` "
-               "(message, date, last_received, from_address, to_address, subject, body, filter_date)"
-               "VALUES (%s,%s,%s,%s,%s,%s,%s,%s);"
+               "(message, date, received_1, received_2, received_3, received_4, "
+               "from_address, to_address, subject, body, filter_date)"
+               "VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);"
         ).format( self.table )
         msgID = message.message.get("Message-ID",None)
         
         sendDate = self.getSendDate( message.message )
-        recDate = self.guessReceivedDate( message.message )
+        recDates = self.guessReceivedDatesStr( message.message )
         # Note: parsing failure results in None value, which translates to NULL in SQL
         sendDateStr = None
-        recDateStr = None
 
         if sendDate == None:
             self.logger.error( "Failed to parse 'date:' header, msgID={}".format( msgID ) )
         else:
             sendDateStr = sendDate.strftime('%Y-%m-%d %H:%M:%S')
-        if recDate == None:
-            self.logger.error( "Failed to parse last 'Received:' header, msgID={}".format( msgID ) )
-        else:
-            recDateStr = recDate.strftime('%Y-%m-%d %H:%M:%S')
             
         data = ( 
-            message.message.as_string(),
-            sendDate, recDate,
+            message.message.as_string(), sendDate,
+            recDates[0], recDates[1], recDates[2], recDates[3], 
             message.message.get("From",None),
             message.message.get("To",None),
             message.message.get("Subject",None),
