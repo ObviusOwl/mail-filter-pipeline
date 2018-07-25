@@ -29,6 +29,25 @@ class MailFilterDaemon( object ):
     
     def loadConfigFile(self, fileName ):
         self.conf.loadFile( fileName )
+
+    def loadPlugins(self):
+        self.logger.debug( "loading plugins" )
+        import importlib.util, sys, os.path
+        from .filter_plugin import FilterPlugin
+        for pluginPath in self.conf.getPluginPaths():
+            if os.path.isfile( pluginPath ) and os.path.splitext(pluginPath)[1] != ".py":
+                self.logger.error("Ignoring plugin '{}' because of missing .py extension".format(pluginPath) )
+                continue
+            if os.path.isdir( pluginPath ):
+                pluginPath = os.path.join(pluginPath,"__init__.py")
+                if not os.path.exists( pluginPath ):
+                    self.logger.error("Ignoring plugin '{}' because of missing __init__.py".format(pluginPath) )
+                    continue
+            spec = importlib.util.spec_from_file_location("mail_filter_pipeline.plugins", pluginPath)
+            mod = importlib.util.module_from_spec( spec )
+            sys.modules[spec.name] = mod
+            spec.loader.exec_module(mod)
+        self.logger.debug( "loaded filters: " + str( list(FilterPlugin) ) )
     
     def setLogVerbosity(self, verb ):
         self.logVerbosity = verb
@@ -114,6 +133,7 @@ class MailFilterDaemon( object ):
             self.pipelineQueue = queue.Queue( maxsize=self.conf.getPipelineQueueSize() )
             
             self.initLogging()
+            self.loadPlugins()
             # load input plugins but not start them yet
             self.initInputPlugins()
             # check if pipelines and filters are runnable (plugin + config OK)

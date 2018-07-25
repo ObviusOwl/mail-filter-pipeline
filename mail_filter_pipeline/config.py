@@ -47,6 +47,11 @@ class Config( object ):
             cnf2 = PipelineConfig( cnf )
             cnfList2.append( cnf2 )
         return cnfList2
+    
+    def getPluginPaths(self):
+        if not "plugins" in self.conf:
+            return []
+        return self.conf["plugins"]
 
     def getMailQueueSize(self):
         return self.getDaemonConfig("mail_queue_size",fallback=5)
