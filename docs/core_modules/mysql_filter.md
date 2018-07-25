@@ -9,7 +9,10 @@ CREATE TABLE `mails` (
   `id` int(10) UNSIGNED NOT NULL,
   `message` text,
   `date` datetime DEFAULT NULL,
-  `last_received` datetime DEFAULT NULL,
+  `received_1` datetime DEFAULT NULL,
+  `received_2` datetime DEFAULT NULL,
+  `received_3` datetime DEFAULT NULL,
+  `received_4` datetime DEFAULT NULL,
   `from_address` text,
   `to_address` text,
   `subject` text,
@@ -32,8 +35,9 @@ The `message` column contains the complete email with body and headers.
 The columns `date`, `from_address`, `to_address`, `subject` map respectively to the 
 email headers `Date`, `From`, `To`, `Subject`.
 
-`last_received` is populated with the first date found in the latest (top most)
-`Received` header. Note that this header is meant for manual debugging and thus 
+`received_1` to `received_4` are populated with the first date found in the last 
+4 (top most)`Received` headers. If there is less than 4 received headers NULL 
+is inserted. Note that this header is meant for manual debugging and thus 
 there is any standard dictating the content and format. MTAs can insert anything 
 as Received header.
 
