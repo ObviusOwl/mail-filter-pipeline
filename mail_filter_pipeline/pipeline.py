@@ -1,3 +1,4 @@
+import logging
 
 from mail_filter_pipeline.filter_plugin import FilterPlugin
 from mail_filter_pipeline.errors import FilterRuntimeError
@@ -8,6 +9,7 @@ class Pipeline( object ):
         self.conf = None
         self.message = None
         self.filters = []
+        self.logger = logging.getLogger(__name__)
     
     def setConf( self, conf ):
         self.conf = conf
