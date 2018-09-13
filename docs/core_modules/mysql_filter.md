@@ -7,6 +7,7 @@ The schema used is:
 ```sql
 CREATE TABLE `mails` (
   `id` int(10) UNSIGNED NOT NULL,
+  `message_id` text,
   `message` text,
   `date` datetime DEFAULT NULL,
   `received_1` datetime DEFAULT NULL,
@@ -29,6 +30,10 @@ ALTER TABLE `mails`
 
 All dates are inserted in local time. In case of missing headers or failed parsing
 `NULL` is inserted.
+
+In `message_id` the content of the header *Message-ID* is stored. This should be unique 
+per mail, however some bad mail clients are known to have reused the same Message-ID header
+multiple times. It is up to the MUA or first MTA to insert the header and ensure it is unique.
 
 The `message` column contains the complete email with body and headers.
 

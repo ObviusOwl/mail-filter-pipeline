@@ -102,9 +102,9 @@ class MysqlFilter( FilterPlugin ):
             self.host, self.port, self.database, self.table
         )
         stm = ("INSERT INTO `{}` "
-               "(message, date, received_1, received_2, received_3, received_4, "
+               "(message_id, message, date, received_1, received_2, received_3, received_4, "
                "from_address, to_address, subject, body, filter_date)"
-               "VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);"
+               "VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);"
         ).format( self.table )
         msgID = message.message.get("Message-ID",None)
         
@@ -119,6 +119,7 @@ class MysqlFilter( FilterPlugin ):
             sendDateStr = sendDate.strftime('%Y-%m-%d %H:%M:%S')
             
         data = ( 
+            msgID,
             message.message.as_string(), sendDate,
             recDates[0], recDates[1], recDates[2], recDates[3], 
             message.message.get("From",None),
